@@ -182,22 +182,29 @@ def index(request):
     threat_ratio = round((threat_found_count / total_records) * 100, 2) if total_records else 0
     no_threat_ratio = round((no_threat_count / total_records) * 100, 2) if total_records else 0
 
-    total_predictions = cyber_threat_identification.objects.count()
-    db_threat_found = cyber_threat_identification.objects.filter(Prediction='Cyber Threat Found').count()
-    db_no_threat = cyber_threat_identification.objects.filter(Prediction='No Cyber Threat Found').count()
-
-    today = date.today()
-    week_ago = today - timedelta(days=6)
+    total_predictions = 0
+    db_threat_found = 0
+    db_no_threat = 0
     predictions_today = 0
     predictions_last_7_days = 0
-    for ts in cyber_threat_identification.objects.values_list('timestamp', flat=True):
-        parsed_date = _parse_timestamp_to_date(ts)
-        if not parsed_date:
-            continue
-        if parsed_date == today:
-            predictions_today += 1
-        if week_ago <= parsed_date <= today:
-            predictions_last_7_days += 1
+
+    try:
+        total_predictions = cyber_threat_identification.objects.count()
+        db_threat_found = cyber_threat_identification.objects.filter(Prediction='Cyber Threat Found').count()
+        db_no_threat = cyber_threat_identification.objects.filter(Prediction='No Cyber Threat Found').count()
+
+        today = date.today()
+        week_ago = today - timedelta(days=6)
+        for ts in cyber_threat_identification.objects.values_list('timestamp', flat=True):
+            parsed_date = _parse_timestamp_to_date(ts)
+            if not parsed_date:
+                continue
+            if parsed_date == today:
+                predictions_today += 1
+            if week_ago <= parsed_date <= today:
+                predictions_last_7_days += 1
+    except Exception:
+        pass
 
     return render(
         request,
