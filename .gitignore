@@ -10,5 +10,6 @@ __pycache__/
 db.sqlite3
 media/
 ml_cache/
+staticfiles/
 data/Results.csv
 .DS_Store
