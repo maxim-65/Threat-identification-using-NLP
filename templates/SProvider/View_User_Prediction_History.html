@@ -1,0 +1,129 @@
+{% extends 'SProvider/Header.html' %}
+{% block researchblock %}
+
+<style>
+    .history-wrap {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+    }
+
+    .history-title {
+        margin: 0 0 12px;
+        color: #1e3a8a;
+        font-size: 1.1rem;
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(120px, 1fr));
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .card {
+        border-radius: 10px;
+        padding: 10px;
+        color: #fff;
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .c1 { background: linear-gradient(135deg, #1d4ed8, #06b6d4); }
+    .c2 { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+    .c3 { background: linear-gradient(135deg, #166534, #22c55e); }
+
+    .back-link {
+        display: inline-block;
+        margin-bottom: 10px;
+        text-decoration: none;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #0f766e;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.82rem;
+    }
+
+    .table-wrap {
+        overflow: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 720px;
+    }
+
+    th,
+    td {
+        padding: 10px;
+        border-bottom: 1px solid #e5e7eb;
+        text-align: left;
+        font-size: 0.88rem;
+    }
+
+    th {
+        background: #1e293b;
+        color: #fff;
+    }
+
+    .empty {
+        text-align: center;
+        color: #64748b;
+        font-weight: 700;
+        padding: 24px;
+    }
+
+    @media (max-width: 800px) {
+        .summary {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="history-wrap">
+    <a class="back-link" href="{{ back_url }}">Back to Audit Log</a>
+
+    <h3 class="history-title">Prediction History: {{ username }}</h3>
+
+    <div class="summary">
+        <div class="card c1">Total<br />{{ stats.total }}</div>
+        <div class="card c2">Threat<br />{{ stats.threat_total }}</div>
+        <div class="card c3">No Threat<br />{{ stats.safe_total }}</div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>FID</th>
+                    <th>Predicted Label</th>
+                    <th>Confidence</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rec in records %}
+                <tr>
+                    <td>{{ rec.fid }}</td>
+                    <td>{{ rec.predicted_label }}</td>
+                    <td>{{ rec.confidence }}%</td>
+                    <td>{{ rec.created_at }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="empty">No prediction history available for this user.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

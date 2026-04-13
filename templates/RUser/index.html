@@ -1,0 +1,298 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cyber Threat Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --c1: #0b6e6e;
+            --c2: #1fb6cf;
+            --c3: #f59e0b;
+            --c4: #ef476f;
+            --c5: #ef476f;
+            --ink: #0f172a;
+            --panel: rgba(255, 255, 255, 0.92);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--ink);
+            background: linear-gradient(135deg, rgba(11, 110, 110, 0.82), rgba(31, 182, 207, 0.7)),
+                        url("{% static 'bg.jpg' %}") center/cover fixed no-repeat;
+        }
+
+        .shell {
+            max-width: 1180px;
+            margin: 22px auto;
+            background: var(--panel);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 130px 1fr 130px;
+            gap: 14px;
+            align-items: center;
+            padding: 16px 20px;
+            background: linear-gradient(90deg, var(--c1), var(--c2), var(--c3));
+        }
+
+        .hero img {
+            width: 100%;
+            max-width: 120px;
+            height: 74px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .hero h1 {
+            margin: 0;
+            color: #ffffff;
+            text-align: center;
+            font-size: 1.25rem;
+            line-height: 1.35;
+            font-weight: 800;
+        }
+
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            background: #ffffff;
+            border-bottom: 4px solid var(--c4);
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.92rem;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--c1), var(--c2));
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .nav a:first-child {
+            background: linear-gradient(135deg, var(--c3), var(--c4));
+        }
+
+        .nav a:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            padding: 22px;
+        }
+
+        .intro {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 18px;
+            border-left: 6px solid var(--c5);
+        }
+
+        .intro h2 {
+            margin-top: 0;
+            color: #b91c1c;
+            font-size: 1.22rem;
+        }
+
+        .intro p {
+            line-height: 1.75;
+            font-size: 0.96rem;
+            margin-bottom: 0;
+            text-align: justify;
+        }
+
+        .snapshot {
+            margin: 0 22px 22px;
+            background: #ffffff;
+            border-radius: 12px;
+            border-top: 5px solid var(--c2);
+            padding: 18px;
+        }
+
+        .snapshot h3 {
+            margin: 0 0 12px;
+            color: #0f766e;
+            font-size: 1.15rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .stat-card {
+            border-radius: 10px;
+            color: #fff;
+            padding: 12px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .stat-card:nth-child(1) { background: linear-gradient(135deg, #0369a1, #0ea5e9); }
+        .stat-card:nth-child(2) { background: linear-gradient(135deg, #15803d, #22c55e); }
+        .stat-card:nth-child(3) { background: linear-gradient(135deg, #b45309, #f59e0b); }
+        .stat-card:nth-child(4) { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+
+        .stat-label {
+            display: block;
+            font-size: 0.78rem;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.1rem;
+            letter-spacing: 0.2px;
+        }
+
+        .snapshot p {
+            margin: 0;
+            line-height: 1.65;
+            font-size: 0.93rem;
+        }
+
+        .snapshot + .snapshot {
+            margin-top: 0;
+        }
+
+        @media (max-width: 900px) {
+            .shell {
+                margin: 8px;
+                border-radius: 12px;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .hero img {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 1rem;
+            }
+
+            .content {
+                grid-template-columns: 1fr;
+                padding: 14px;
+            }
+
+            .snapshot {
+                margin: 0 14px 14px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(120px, 1fr));
+            }
+
+        }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <div class="hero">
+        <img src="{% static 'img1.jpg' %}" alt="Threat feed" />
+        <h1>Automated Emerging Cyber Threat Identification and Profiling Based on Natural Language Processing</h1>
+        <img src="{% static 'banner.jpg' %}" alt="Cyber analytics" />
+    </div>
+
+    <div class="nav">
+        <a href="{% url 'index' %}">Home</a>
+        <a href="{% url 'remote_user_login' %}">Remote User</a>
+        <a href="{% url 'service_provider_login' %}">Service Provider</a>
+        <a href="{% url 'Register1' %}">Register</a>
+    </div>
+
+    <div class="content">
+        <div class="intro">
+            <h2>Smarter Early Cyber Threat Discovery</h2>
+            <p>
+                The platform helps identify potential cyber threats from social and open-source text streams at an early stage.
+                It combines natural language processing and machine learning models to classify suspicious activity and provide
+                useful context for faster mitigation decisions. This reduces the delay between threat emergence and response,
+                improving defensive readiness for security teams.
+            </p>
+        </div>
+    </div>
+
+    <div class="snapshot">
+        <h3>Project Data Snapshot</h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Total Records</span>
+                <span class="stat-value">{{ total_records }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Threat Found</span>
+                <span class="stat-value">{{ threat_found_count }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">No Threat</span>
+                <span class="stat-value">{{ no_threat_count }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Input Features</span>
+                <span class="stat-value">{{ input_features }}</span>
+            </div>
+        </div>
+        <p>
+            The dataset includes core cyber-event fields such as tweet text, source, URL, source/destination IP, and protocol.
+            Current dataset balance: {{ threat_ratio }}% threat-related entries and {{ no_threat_ratio }}% non-threat entries.
+            These features are used by the NLP-driven pipeline to classify whether a cyber threat is present and support faster response decisions.
+        </p>
+    </div>
+
+    <div class="snapshot">
+        <h3>Live Prediction Snapshot</h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Predictions Stored</span>
+                <span class="stat-value">{{ total_predictions }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Threat Predictions</span>
+                <span class="stat-value">{{ db_threat_found }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Predictions Today</span>
+                <span class="stat-value">{{ predictions_today }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Last 7 Days</span>
+                <span class="stat-value">{{ predictions_last_7_days }}</span>
+            </div>
+        </div>
+        <p>
+            This section tracks prediction activity from your stored records and helps monitor operational usage over time.
+            Keep entering timestamp values in a valid date format (for example, YYYY-MM-DD) to improve timeline metrics.
+        </p>
+    </div>
+</div>
+</body>
+</html>
+

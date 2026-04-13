@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Service Provider</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --c1: #0b6e6e;
+      --c2: #1fb6cf;
+      --c3: #f59e0b;
+      --c4: #ef476f;
+      --panel: rgba(255, 255, 255, 0.92);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, rgba(11, 110, 110, 0.82), rgba(31, 182, 207, 0.65)),
+            url("{% static 'bg.jpg' %}") center/cover fixed no-repeat;
+    }
+
+    .shell {
+      max-width: 1250px;
+      margin: 18px auto;
+      border-radius: 18px;
+      background: var(--panel);
+      overflow: hidden;
+      box-shadow: 0 16px 42px rgba(0, 0, 0, 0.28);
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 130px 1fr 130px;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      background: linear-gradient(100deg, var(--c1), var(--c2), var(--c3));
+    }
+
+    .topbar h1 {
+      margin: 0;
+      color: #fff;
+      font-size: 1.2rem;
+      text-align: center;
+      line-height: 1.35;
+      font-weight: 800;
+    }
+
+    .topbar img {
+      width: 100%;
+      max-width: 115px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.7);
+    }
+
+    .topnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      padding: 12px;
+      border-bottom: 4px solid var(--c4);
+      background: #fff;
+    }
+
+    .topnav a {
+      text-decoration: none;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .topnav a.active {
+      background: linear-gradient(135deg, var(--c3), var(--c4));
+    }
+
+    .topnav details {
+      position: relative;
+    }
+
+    .topnav summary {
+      list-style: none;
+      cursor: pointer;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      white-space: nowrap;
+      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .topnav summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topnav summary.active,
+    .topnav details[open] summary {
+      background: linear-gradient(135deg, var(--c3), var(--c4));
+    }
+
+    .topnav .more-menu {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      z-index: 20;
+      display: grid;
+      gap: 8px;
+      width: 260px;
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid #dbeafe;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    .topnav .more-menu a {
+      display: block;
+      text-align: center;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #0b6e6e, #1fb6cf);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    .topnav a:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+    }
+
+    .topnav a:active {
+      transform: translateY(0);
+      filter: brightness(0.98);
+    }
+
+    .mainholder {
+      padding: 20px;
+    }
+
+    @media (max-width: 800px) {
+      .shell {
+        margin: 8px;
+        border-radius: 12px;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar img {
+        display: none;
+      }
+
+      .topbar h1 {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <img src="{% static 'img1.jpg' %}" alt="Analytics Left" />
+    <h1>Automated Emerging Cyber Threat Identification and Profiling Based on Natural Language Processing</h1>
+    <img src="{% static 'banner.jpg' %}" alt="Analytics Right" />
+  </div>
+
+<div class="topnav">
+
+  <a href="{% url 'service_provider_home' %}" class="{% if request.path == '/service_provider_home/' %}active{% endif %}">Home</a>
+  <a href="{% url 'view_prediction_audit_log' %}" class="{% if request.path == '/view_prediction_audit_log/' or request.path|slice:':30' == '/view_user_prediction_history/' %}active{% endif %}">Audit Log</a>
+  <a href="{% url 'View_Predicted_Cyber_Threat_Identification_Type' %}" class="{% if request.path == '/View_Predicted_Cyber_Threat_Identification_Type/' %}active{% endif %}">Predictions</a>
+  <a href="{% url 'train_model' %}" class="{% if request.path == '/train_model/' %}active{% endif %}">Model Accuracies</a>
+  <a href="{% url 'train_models' %}" class="{% if request.path == '/train_models/' %}active{% endif %}">Train New Data</a>
+  <details>
+    <summary class="{% if request.path == '/View_Remote_Users/' or request.path|slice:':8' == '/charts/' or '/charts1/' in request.path or '/likeschart/' in request.path or request.path == '/View_Predicted_Cyber_Threat_Identification_Type_Ratio/' %}active{% endif %}">More</summary>
+    <div class="more-menu">
+      <a href="{% url 'View_Remote_Users' %}" class="{% if request.path == '/View_Remote_Users/' %}active{% endif %}">Users</a>
+      <a href="{% url 'charts' 'line' %}" class="{% if request.path|slice:':8' == '/charts/' %}active{% endif %}">Charts</a>
+      <a href="{% url 'charts1' 'line' %}" class="{% if '/charts1/' in request.path %}active{% endif %}">Accuracy Results</a>
+      <a href="{% url 'likeschart' 'bar' %}" class="{% if '/likeschart/' in request.path %}active{% endif %}">Bar Accuracy</a>
+      <a href="{% url 'View_Predicted_Cyber_Threat_Identification_Type_Ratio' %}" class="{% if request.path == '/View_Predicted_Cyber_Threat_Identification_Type_Ratio/' %}active{% endif %}">Threat Ratio</a>
+    </div>
+  </details>
+  <a href="{% url 'index'  %}">Logout</a>
+</div>
+
+<div class="mainholder">
+{% block researchblock %}
+{% endblock %}
+</div>
+</div>
+</body>
+</html>

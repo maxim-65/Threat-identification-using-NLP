@@ -1,0 +1,187 @@
+{% extends 'SProvider/Header.html' %}
+{% block researchblock %}
+
+<style>
+	.page-wrap {
+		background: #ffffff;
+		border-radius: 14px;
+		padding: 16px;
+		border: 1px solid #e2e8f0;
+		box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+	}
+
+	.page-title {
+		margin: 0 0 12px;
+		font-size: 1.12rem;
+		font-weight: 800;
+		color: #0b6e6e;
+	}
+
+	.summary-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(150px, 1fr));
+		gap: 10px;
+		margin-bottom: 14px;
+	}
+
+	.summary-card {
+		border-radius: 10px;
+		padding: 12px;
+		color: #ffffff;
+		font-weight: 700;
+	}
+
+	.summary-card .k {
+		display: block;
+		font-size: 0.78rem;
+		opacity: 0.92;
+		margin-bottom: 4px;
+		text-transform: uppercase;
+		letter-spacing: 0.02em;
+	}
+
+	.summary-card .v {
+		font-size: 1.04rem;
+		line-height: 1.3;
+		word-break: break-word;
+	}
+
+	.sc1 { background: linear-gradient(135deg, #0b6e6e, #1fb6cf); }
+	.sc2 { background: linear-gradient(135deg, #f59e0b, #ef476f); }
+	.sc3 { background: linear-gradient(135deg, #2563eb, #0ea5e9); }
+
+	.table-wrap {
+		overflow: auto;
+		border: 1px solid #e2e8f0;
+		border-radius: 12px;
+	}
+
+	table.grid {
+		width: 100%;
+		min-width: 1300px;
+		border-collapse: collapse;
+	}
+
+	.grid th,
+	.grid td {
+		padding: 11px;
+		border-bottom: 1px solid #e5e7eb;
+		text-align: left;
+		vertical-align: top;
+		font-size: 0.88rem;
+		color: #0f172a;
+	}
+
+	.grid th {
+		background: #0b6e6e;
+		color: #ffffff;
+		font-weight: 800;
+		position: sticky;
+		top: 0;
+		z-index: 1;
+	}
+
+	.grid tr:nth-child(even) td {
+		background: #f8fafc;
+	}
+
+	.prediction-chip {
+		display: inline-block;
+		padding: 6px 10px;
+		border-radius: 999px;
+		font-size: 0.78rem;
+		font-weight: 800;
+		border: 1px solid transparent;
+	}
+
+	.prediction-chip.positive {
+		color: #065f46;
+		background: #d1fae5;
+		border-color: #6ee7b7;
+	}
+
+	.prediction-chip.negative {
+		color: #9f1239;
+		background: #ffe4e6;
+		border-color: #fda4af;
+	}
+
+	.empty {
+		text-align: center;
+		color: #64748b;
+		font-weight: 700;
+		padding: 18px;
+	}
+
+	@media (max-width: 900px) {
+		.summary-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
+
+<div class="page-wrap">
+	<h2 class="page-title">Predicted Cyber Threat Identification Details</h2>
+
+	<div class="summary-grid">
+		<div class="summary-card sc1">
+			<span class="k">Records</span>
+			<span class="v">{{ list_objects|length }}</span>
+		</div>
+		<div class="summary-card sc2">
+			<span class="k">Threat / No Threat</span>
+			<span class="v">{{ threat_found_count }} / {{ no_threat_count }}</span>
+		</div>
+		<div class="summary-card sc3">
+			<span class="k">Export</span>
+			<span class="v"><a href="{% url 'Download_Predicted_DataSets' %}" style="color:#ffffff; text-decoration:underline;">Download XLS</a></span>
+		</div>
+	</div>
+
+	<div class="table-wrap">
+		<table class="grid">
+			<thead>
+				<tr>
+					<th>FID</th>
+					<th>Tweet Text</th>
+					<th>Timestamp</th>
+					<th>Source</th>
+					<th>Symbols</th>
+					<th>Company</th>
+					<th>URL</th>
+					<th>Source IP</th>
+					<th>Protocol</th>
+					<th>Destination IP</th>
+					<th>Prediction</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for object in list_objects %}
+				<tr>
+					<td>{{ object.fid }}</td>
+					<td>{{ object.tweet_text }}</td>
+					<td>{{ object.timestamp }}</td>
+					<td>{{ object.source }}</td>
+					<td>{{ object.symbols }}</td>
+					<td>{{ object.company_names }}</td>
+					<td>{{ object.url }}</td>
+					<td>{{ object.source_ip }}</td>
+					<td>{{ object.protocol }}</td>
+					<td>{{ object.dest_ip }}</td>
+					<td>
+						<span class="prediction-chip {% if object.Prediction == 'Cyber Threat Found' %}positive{% else %}negative{% endif %}">
+							{{ object.Prediction }}
+						</span>
+					</td>
+				</tr>
+				{% empty %}
+				<tr>
+					<td colspan="11" class="empty">No prediction records available.</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+{% endblock %}

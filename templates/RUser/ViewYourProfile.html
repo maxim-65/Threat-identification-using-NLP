@@ -1,0 +1,108 @@
+{% extends 'RUser/Header.html' %}
+{% block userblock %}
+
+<style>
+  .profile-wrap {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+    border: 1px solid #e2e8f0;
+  }
+
+  .profile-title {
+    margin: 0 0 12px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0b6e6e;
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 10px;
+  }
+
+  .item {
+    display: grid;
+    gap: 6px;
+    padding: 10px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #a5f3fc;
+  }
+
+  .label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ef476f;
+    word-break: break-word;
+  }
+
+  .item.wide {
+    grid-column: 1 / -1;
+  }
+
+  @media (max-width: 760px) {
+    .profile-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="profile-wrap">
+  <h2 class="profile-title">Your Profile Details</h2>
+
+  <div class="profile-grid">
+    <div class="item">
+      <span class="label">Username</span>
+      <span class="value">{{ object.username|default:'-' }}</span>
+    </div>
+
+    <div class="item">
+      <span class="label">Email Id</span>
+      <span class="value">{{ object.email|default:'-' }}</span>
+    </div>
+
+    <div class="item">
+      <span class="label">Mobile Number</span>
+      <span class="value">{{ object.phoneno|default:'-' }}</span>
+    </div>
+
+    <div class="item">
+      <span class="label">Gender</span>
+      <span class="value">{{ object.gender|default:'-' }}</span>
+    </div>
+
+    <div class="item wide">
+      <span class="label">Address</span>
+      <span class="value">{{ object.address|default:'-' }}</span>
+    </div>
+
+    <div class="item">
+      <span class="label">Country</span>
+      <span class="value">{{ object.country|default:'-' }}</span>
+    </div>
+
+    <div class="item">
+      <span class="label">State</span>
+      <span class="value">{{ object.state|default:'-' }}</span>
+    </div>
+
+    <div class="item">
+      <span class="label">City</span>
+      <span class="value">{{ object.city|default:'-' }}</span>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

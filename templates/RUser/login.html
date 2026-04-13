@@ -1,0 +1,223 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Remote User Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --c1: #0b6e6e;
+      --c2: #1fb6cf;
+      --c3: #f59e0b;
+      --c4: #ef476f;
+      --panel: rgba(255, 255, 255, 0.92);
+      --ink: #1f2937;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      background: linear-gradient(130deg, rgba(11, 110, 110, 0.84), rgba(31, 182, 207, 0.68)),
+        url("{% static 'bg.jpg' %}") center/cover fixed no-repeat;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+    }
+
+    .shell {
+      width: min(980px, 100%);
+      border-radius: 18px;
+      overflow: hidden;
+      background: var(--panel);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+    }
+
+    .top {
+      display: grid;
+      grid-template-columns: 100px 1fr 100px;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: linear-gradient(95deg, var(--c1), var(--c2), var(--c3));
+    }
+
+    .top img {
+      width: 100%;
+      max-width: 92px;
+      height: 62px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.72);
+    }
+
+    .top h1 {
+      margin: 0;
+      color: #fff;
+      font-size: 1rem;
+      text-align: center;
+      line-height: 1.35;
+      font-weight: 800;
+    }
+
+    .switcher {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px;
+      background: #fff;
+      border-bottom: 3px solid var(--c4);
+    }
+
+    .switcher a {
+      text-decoration: none;
+      font-weight: 700;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      font-size: 0.88rem;
+    }
+
+    .switcher a.active {
+      background: linear-gradient(135deg, var(--c3), var(--c4));
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      padding: 20px;
+      align-items: center;
+    }
+
+    .content img {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #dbeafe;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 8px 18px rgba(29, 78, 216, 0.14);
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      color: #0a4d68;
+      font-size: 1.1rem;
+    }
+
+    .status-box {
+      margin: 10px 0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-weight: 700;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      text-align: center;
+      font-size: 0.88rem;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      font-size: 0.82rem;
+      color: #334155;
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px;
+      font-family: inherit;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .btn {
+      text-decoration: none;
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 14px;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem;
+    }
+
+    .btn-login { background: linear-gradient(135deg, var(--c1), var(--c2)); }
+    .btn-register { background: linear-gradient(135deg, var(--c3), var(--c4)); }
+
+    @media (max-width: 860px) {
+      .top { grid-template-columns: 1fr; }
+      .top img { display: none; }
+      .content { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="top">
+      <img src="{% static 'img1.jpg' %}" alt="Threat feed" />
+      <h1>Automated Emerging Cyber Threat Identification and Profiling Based on Natural Language Processing</h1>
+      <img src="{% static 'banner.jpg' %}" alt="Cyber analytics" />
+    </div>
+
+    <div class="switcher">
+      <a href="{% url 'index' %}">Home</a>
+      <a href="{% url 'remote_user_login' %}" class="active">Remote User Login</a>
+      <a href="{% url 'service_provider_login' %}">Service Provider Login</a>
+      <a href="{% url 'Register1' %}">Register</a>
+    </div>
+
+    <div class="content">
+      <img src="{% static 'Login.jpg' %}" alt="Remote user access" />
+
+      <form method="POST" class="card" role="form">
+        {% csrf_token %}
+        <h2>Remote User Sign In</h2>
+        {% if object %}
+        <div class="status-box">{{ object }}</div>
+        {% endif %}
+
+        <div class="field">
+          <label for="username">Username or Mail</label>
+          <input id="username" type="text" name="username" placeholder="Enter your username or email" required />
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" name="password" placeholder="Enter your password" required />
+        </div>
+
+        <div class="actions">
+          <button type="submit" name="submit1" class="btn btn-login">Login</button>
+          <a href="{% url 'Register1' %}" class="btn btn-register">Register New User</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

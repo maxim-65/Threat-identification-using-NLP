@@ -1,0 +1,233 @@
+{% extends 'SProvider/Header.html' %}
+{% block researchblock %}
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: 1.3fr 0.9fr;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .hero-card,
+  .info-card,
+  .action-card {
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 16px;
+    border: 1px solid #dbeafe;
+    box-shadow: 0 12px 28px rgba(15, 118, 110, 0.12);
+  }
+
+  .hero-card {
+    padding: 22px;
+  }
+
+  .hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #e0f2fe;
+    color: #0c4a6e;
+    font-weight: 700;
+    font-size: 0.82rem;
+    margin-bottom: 14px;
+  }
+
+  .hero-title {
+    margin: 0;
+    color: #0b6e6e;
+    font-size: 1.6rem;
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  .hero-text {
+    margin: 12px 0 0;
+    color: #334155;
+    line-height: 1.65;
+    font-size: 0.95rem;
+  }
+
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .metric {
+    padding: 14px;
+    border-radius: 14px;
+    color: #fff;
+    background: linear-gradient(135deg, #0b6e6e, #1fb6cf);
+  }
+
+  .metric:nth-child(2) { background: linear-gradient(135deg, #2563eb, #0ea5e9); }
+  .metric:nth-child(3) { background: linear-gradient(135deg, #f59e0b, #ef476f); }
+  .metric:nth-child(4) { background: linear-gradient(135deg, #0f766e, #22c55e); }
+
+  .metric .label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    opacity: 0.9;
+    margin-bottom: 6px;
+  }
+
+  .metric .value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .metric .note {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.82rem;
+    opacity: 0.92;
+  }
+
+  .side-stack {
+    display: grid;
+    gap: 16px;
+  }
+
+  .info-card,
+  .action-card {
+    padding: 18px;
+  }
+
+  .section-title {
+    margin: 0 0 12px;
+    color: #0b6e6e;
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  .status-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.92rem;
+    color: #334155;
+  }
+
+  .status-row:last-child { border-bottom: 0; }
+
+  .status-row strong { color: #0f172a; }
+
+  .action-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .action-links a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #0b6e6e, #1fb6cf);
+  }
+
+  .download-actions {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .download-actions a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #0b6e6e, #1fb6cf);
+  }
+
+  @media (max-width: 900px) {
+    .hero {
+      grid-template-columns: 1fr;
+    }
+
+    .metric-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="hero">
+  <div class="hero-card">
+    <div class="hero-kicker">Service Provider Dashboard</div>
+    <h2 class="hero-title">Cyber Threat Identification Control Center</h2>
+    <p class="hero-text">
+      Monitor registered users, review trained model accuracy, inspect prediction results, and export audit records from one place.
+      This dashboard gives a fast overview of the current system state.
+    </p>
+
+    <div class="metric-grid">
+      <div class="metric">
+        <span class="label">Remote Users</span>
+        <div class="value">{{ remote_users }}</div>
+        <span class="note">Registered remote accounts</span>
+      </div>
+      <div class="metric">
+        <span class="label">Predicted Records</span>
+        <div class="value">{{ predicted_records }}</div>
+        <span class="note">Stored prediction results</span>
+      </div>
+      <div class="metric">
+        <span class="label">Training Models</span>
+        <div class="value">{{ training_models }}</div>
+        <span class="note">Evaluated accuracy rows</span>
+      </div>
+      <div class="metric">
+        <span class="label">Audit Entries</span>
+        <div class="value">{{ audit_records }}</div>
+        <span class="note">Prediction audit trail</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="side-stack">
+    <div class="info-card">
+      <h3 class="section-title">Prediction Summary</h3>
+      <div class="status-list">
+        <div class="status-row"><span>Cyber Threat Found</span><strong>{{ threat_found }}</strong></div>
+        <div class="status-row"><span>No Cyber Threat Found</span><strong>{{ threat_safe }}</strong></div>
+      </div>
+    </div>
+
+    <div class="action-card">
+      <h3 class="section-title">Quick Actions</h3>
+      <div class="action-links">
+        <a href="{% url 'View_Remote_Users' %}">View Users</a>
+        <a href="{% url 'train_model' %}">Train Model</a>
+        <a href="{% url 'train_models' %}">Train Models</a>
+        <a href="{% url 'view_prediction_audit_log' %}">Audit Log</a>
+        <a href="{% url 'View_Predicted_Cyber_Threat_Identification_Type' %}">Predictions</a>
+      </div>
+
+      <h3 class="section-title" style="margin-top:16px;">Downloads</h3>
+      <div class="download-actions">
+        <a href="{% url 'download_prediction_audit_log' %}">Download Audit Log (XLS)</a>
+        <a href="{% url 'download_prediction_audit_log_csv' %}">Download Audit Log (CSV)</a>
+        <a href="{% url 'Download_Predicted_DataSets' %}">Download Predicted Data Sets</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

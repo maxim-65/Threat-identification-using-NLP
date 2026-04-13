@@ -1,0 +1,405 @@
+{% extends 'RUser/Header.html' %}
+{% block userblock %}
+
+<style>
+  .predict-wrap {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+    border: 1px solid #e2e8f0;
+  }
+
+  .predict-title {
+    margin: 0 0 12px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0b6e6e;
+  }
+
+  .predict-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .field {
+    display: grid;
+    gap: 6px;
+  }
+
+  .field.wide {
+    grid-column: 1 / -1;
+  }
+
+  .field label {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .field input,
+  .field textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    background: #f8fafc;
+  }
+
+  .field textarea {
+    min-height: 110px;
+    resize: vertical;
+  }
+
+  .hint {
+    font-size: 0.78rem;
+    color: #64748b;
+    margin-top: -2px;
+  }
+
+  .actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .sample-bar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    margin: 0 0 12px;
+    align-items: end;
+  }
+
+  .sample-bar label {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .sample-bar select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    background: #f8fafc;
+  }
+
+  .btn {
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 16px;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    background: linear-gradient(135deg, #0b6e6e, #1fb6cf);
+  }
+
+  .btn-sample {
+    background: linear-gradient(135deg, #f59e0b, #ef476f);
+  }
+
+  .status-box {
+    margin: 12px 0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-weight: 700;
+    text-align: center;
+    border: 1px solid;
+  }
+
+  .status-success {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
+  }
+
+  .status-error {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+  }
+
+  .result-card {
+    margin-top: 10px;
+    border: 1px solid #a5f3fc;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .result-row {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+  }
+
+  .result-label {
+    background: linear-gradient(135deg, #f59e0b, #ef476f);
+    color: #fff;
+    font-weight: 800;
+    padding: 10px;
+    font-size: 0.86rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .result-value {
+    background: #ffffff;
+    color: #0f172a;
+    font-weight: 800;
+    padding: 10px;
+    font-size: 0.94rem;
+    word-break: break-word;
+  }
+
+  .result-row + .result-row {
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .legend {
+    margin: 10px 0 0;
+    text-align: center;
+    color: #475569;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  @media (max-width: 900px) {
+    .sample-bar {
+      grid-template-columns: 1fr;
+    }
+
+    .predict-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .result-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="predict-wrap">
+  <h2 class="predict-title">Prediction Of Cyber Threat Type</h2>
+
+  <div class="sample-bar">
+    <div>
+      <label for="sample_type">Try Sample Cyber Threat Input</label>
+      <select id="sample_type">
+        <option value="">Select sample type</option>
+        <option value="ddos">DDoS / Flooding Attack</option>
+        <option value="phishing">Phishing / Social Engineering</option>
+        <option value="malware">Malware / Ransomware</option>
+        <option value="breach">Data Breach / Exfiltration</option>
+        <option value="web">Web Application Attack</option>
+        <option value="bruteforce">Brute Force / Unauthorized Access</option>
+        <option value="general">Suspicious Cyber Activity (General)</option>
+      </select>
+    </div>
+    <button type="button" id="load_sample_btn" class="btn btn-sample">Load Sample</button>
+  </div>
+
+  <form method="POST" role="form">
+    {% csrf_token %}
+
+    <div class="predict-grid">
+      <div class="field">
+        <label for="fid">FID</label>
+        <input id="fid" type="text" name="fid" placeholder="Optional identifier" />
+      </div>
+
+      <div class="field wide">
+        <label for="tweet_text">Tweet Text</label>
+        <textarea id="tweet_text" name="tweet_text" placeholder="Enter the text to analyze" required></textarea>
+      </div>
+
+      <div class="field">
+        <label for="timestamp">Timestamp</label>
+        <input id="timestamp" type="text" name="timestamp" placeholder="YYYY-MM-DD or YYYY-MM-DD HH:MM:SS" />
+        <span class="hint">Optional, but if provided it must be valid.</span>
+      </div>
+
+      <div class="field">
+        <label for="source">Source</label>
+        <input id="source" type="text" name="source" placeholder="Data source" />
+      </div>
+
+      <div class="field">
+        <label for="symbols">Symbols</label>
+        <input id="symbols" type="text" name="symbols" placeholder="Tags or symbols" />
+      </div>
+
+      <div class="field">
+        <label for="company_names">Company Names</label>
+        <input id="company_names" type="text" name="company_names" placeholder="Related company names" />
+      </div>
+
+      <div class="field">
+        <label for="url">URL</label>
+        <input id="url" type="text" name="url" placeholder="Reference URL" />
+      </div>
+
+      <div class="field">
+        <label for="source_ip">Source IP</label>
+        <input id="source_ip" type="text" name="source_ip" placeholder="Source IP address" />
+      </div>
+
+      <div class="field">
+        <label for="protocol">Protocol</label>
+        <input id="protocol" type="text" name="protocol" placeholder="Protocol (TCP/UDP/HTTP...)" />
+      </div>
+
+      <div class="field">
+        <label for="dest_ip">Destination IP</label>
+        <input id="dest_ip" type="text" name="dest_ip" placeholder="Destination IP address" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button name="submit" type="submit" class="btn">Predict</button>
+    </div>
+  </form>
+
+  {% if objs %}
+  <div class="status-box {% if is_error %}status-error{% else %}status-success{% endif %}">{{ objs }}</div>
+  {% endif %}
+
+  <div class="result-card">
+    <div class="result-row">
+      <div class="result-label">Predicted Cyber Threat Type</div>
+      <div class="result-value">{% if objs %}{{ objs }}{% else %}--{% endif %}</div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">Threat Category</div>
+      <div class="result-value">{% if threat_type %}{{ threat_type }}{% else %}--{% endif %}</div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">Confidence</div>
+      <div class="result-value">{% if confidence %}{{ confidence }}%{% else %}--{% endif %}</div>
+    </div>
+  </div>
+
+  <p class="legend">Higher confidence indicates stronger model certainty for this prediction.</p>
+</div>
+
+<script>
+  function loadThreatSample() {
+    const samples = {
+      ddos: {
+        tweet_text: 'Massive botnet traffic spike causing SYN flood on gateway and service outage.',
+        source: 'network-monitor',
+        symbols: '#ddos #flood',
+        company_names: 'CriticalInfra',
+        url: 'http://threat.example/ddos-alert',
+        source_ip: '10.10.10.24',
+        protocol: 'tcp',
+        dest_ip: '172.16.0.12'
+      },
+      phishing: {
+        tweet_text: 'Users reported fake login page and credential phishing emails from spoofed sender.',
+        source: 'email-gateway',
+        symbols: '#phishing',
+        company_names: 'CorpMail',
+        url: 'http://threat.example/phishing-campaign',
+        source_ip: '185.34.22.9',
+        protocol: 'http',
+        dest_ip: '192.168.1.8'
+      },
+      malware: {
+        tweet_text: 'Ransomware payload delivered via trojan attachment and endpoints started encrypting files.',
+        source: 'edr-sensor',
+        symbols: '#ransomware #malware',
+        company_names: 'EndpointSec',
+        url: 'http://threat.example/ransomware',
+        source_ip: '45.67.89.10',
+        protocol: 'smb',
+        dest_ip: '192.168.10.44'
+      },
+      breach: {
+        tweet_text: 'Possible data breach with customer records exfiltration and leaked database dump online.',
+        source: 'siem',
+        symbols: '#breach #exfiltration',
+        company_names: 'DataSafe',
+        url: 'http://threat.example/breach-report',
+        source_ip: '203.0.113.21',
+        protocol: 'https',
+        dest_ip: '10.0.0.19'
+      },
+      web: {
+        tweet_text: 'Detected SQL injection and XSS attempts with path traversal probes on web portal.',
+        source: 'waf',
+        symbols: '#sqli #xss',
+        company_names: 'WebShield',
+        url: 'http://threat.example/web-attack',
+        source_ip: '198.51.100.7',
+        protocol: 'http',
+        dest_ip: '172.20.20.50'
+      },
+      bruteforce: {
+        tweet_text: 'Repeated password spray and brute force unauthorized login attempts on admin panel.',
+        source: 'auth-service',
+        symbols: '#bruteforce #auth',
+        company_names: 'IdentityGuard',
+        url: 'http://threat.example/bruteforce',
+        source_ip: '54.12.11.9',
+        protocol: 'tcp',
+        dest_ip: '192.168.0.5'
+      },
+      general: {
+        tweet_text: 'Unusual suspicious network behavior observed from unknown hosts with anomaly spikes.',
+        source: 'nids',
+        symbols: '#suspicious',
+        company_names: 'ThreatWatch',
+        url: 'http://threat.example/anomaly',
+        source_ip: '100.64.0.3',
+        protocol: 'udp',
+        dest_ip: '192.168.100.9'
+      }
+    };
+
+    const selected = document.getElementById('sample_type').value;
+    if (!selected || !samples[selected]) {
+      return;
+    }
+
+    const data = samples[selected];
+    const fields = ['tweet_text', 'source', 'symbols', 'company_names', 'url', 'source_ip', 'protocol', 'dest_ip'];
+    for (const key of fields) {
+      const el = document.getElementById(key);
+      if (el && data[key] !== undefined) {
+        el.value = data[key];
+      }
+    }
+
+    const ts = document.getElementById('timestamp');
+    if (ts && !ts.value) {
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      ts.value = `${yyyy}-${mm}-${dd}`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('load_sample_btn');
+    if (btn) {
+      btn.addEventListener('click', loadThreatSample);
+    }
+  });
+</script>
+
+{% endblock %}

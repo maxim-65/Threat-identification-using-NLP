@@ -1,0 +1,445 @@
+{% extends 'SProvider/Header.html' %}
+{% block researchblock %}
+
+<style>
+    .audit-wrap {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+    }
+
+    .audit-title {
+        margin: 0 0 12px;
+        color: #b91c1c;
+        font-size: 1.2rem;
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .audit-scroll {
+        overflow: auto;
+        max-height: 520px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+    }
+
+    table.audit-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+
+    .audit-table th,
+    .audit-table td {
+        padding: 10px;
+        border-bottom: 1px solid #e5e7eb;
+        text-align: left;
+        font-size: 0.88rem;
+    }
+
+    .audit-table th {
+        background: #0f766e;
+        color: #fff;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.78rem;
+    }
+
+    .threat {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .safe {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .empty-msg {
+        text-align: center;
+        padding: 26px;
+        color: #475569;
+        font-weight: 700;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(120px, 1fr));
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .stat-card {
+        border-radius: 10px;
+        padding: 12px;
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .stat-card .value {
+        display: block;
+        font-size: 1.2rem;
+        margin-top: 4px;
+    }
+
+    .bg-total { background: linear-gradient(135deg, #1d4ed8, #06b6d4); }
+    .bg-threat { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+    .bg-safe { background: linear-gradient(135deg, #166534, #22c55e); }
+    .bg-today { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+    .bg-week { background: linear-gradient(135deg, #9a3412, #f97316); }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 1.8fr 1.4fr 1fr 1fr 1.2fr auto;
+        gap: 10px;
+        margin-bottom: 14px;
+        align-items: end;
+    }
+
+    .filter-grid label {
+        font-size: 0.78rem;
+        color: #334155;
+        font-weight: 700;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .filter-grid input,
+    .filter-grid select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-family: inherit;
+    }
+
+    .btn-row {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn {
+        border: 0;
+        border-radius: 8px;
+        padding: 9px 12px;
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 0.83rem;
+    }
+
+    .btn-filter { background: #0f766e; }
+    .btn-reset { background: #64748b; }
+    .btn-clear { background: #1f2937; }
+
+    .btn-export-xls { background: #1d4ed8; }
+    .btn-export-csv { background: #0f766e; }
+
+    .toolbar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+    .trend-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    .trend-title {
+        margin: 0 0 8px;
+        color: #0f172a;
+        font-size: 0.95rem;
+        font-weight: 800;
+    }
+
+    .trend-row {
+        display: grid;
+        grid-template-columns: 120px 1fr 120px;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .trend-bar-wrap {
+        height: 18px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        overflow: hidden;
+    }
+
+    .trend-bar {
+        height: 100%;
+        background: linear-gradient(135deg, #ef4444, #f97316);
+    }
+
+    .trend-meta {
+        font-size: 0.78rem;
+        color: #334155;
+        font-weight: 700;
+        text-align: right;
+    }
+
+    .quick-filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+
+    .quick-chip {
+        text-decoration: none;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 800;
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+
+    .quick-chip.active {
+        background: #0f766e;
+        color: #fff;
+    }
+
+    .confidence-chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+    }
+
+    .summary-meter {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        align-items: center;
+        gap: 10px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 12px;
+    }
+
+    .meter-track {
+        height: 14px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #e2e8f0;
+        display: flex;
+    }
+
+    .meter-threat {
+        background: #ef4444;
+    }
+
+    .meter-safe {
+        background: #22c55e;
+    }
+
+    .meter-label {
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+    }
+
+    .pagination a {
+        text-decoration: none;
+        color: #0f172a;
+        background: #e2e8f0;
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-weight: 700;
+        font-size: 0.82rem;
+    }
+
+    .page-info {
+        font-size: 0.84rem;
+        color: #1e293b;
+        font-weight: 700;
+    }
+
+    @media (max-width: 980px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(120px, 1fr));
+        }
+
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="audit-wrap">
+    <h3 class="audit-title">Prediction Audit Log</h3>
+
+    <div class="stats-grid">
+        <div class="stat-card bg-total">Total<span class="value">{{ stats.total }}</span></div>
+        <div class="stat-card bg-threat">Threat<span class="value">{{ stats.threat_total }}</span></div>
+        <div class="stat-card bg-safe">No Threat<span class="value">{{ stats.safe_total }}</span></div>
+        <div class="stat-card bg-today">Today<span class="value">{{ stats.today_total }}</span></div>
+        <div class="stat-card bg-week">Last 7 Days<span class="value">{{ stats.last_7_total }}</span></div>
+    </div>
+
+    <form method="get" class="filter-grid">
+        <div>
+            <label for="id_sort">Sort By</label>
+            <select id="id_sort" name="sort">
+                <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest</option>
+                <option value="oldest" {% if filters.sort == 'oldest' %}selected{% endif %}>Oldest</option>
+                <option value="confidence_high" {% if filters.sort == 'confidence_high' %}selected{% endif %}>Highest Confidence</option>
+                <option value="confidence_low" {% if filters.sort == 'confidence_low' %}selected{% endif %}>Lowest Confidence</option>
+                <option value="threat_first" {% if filters.sort == 'threat_first' %}selected{% endif %}>Threat First</option>
+            </select>
+        </div>
+        <div>
+            <label for="id_username">Username</label>
+            <input id="id_username" name="username" type="text" value="{{ filters.username }}" placeholder="Search by username" />
+        </div>
+        <div>
+            <label for="id_label">Predicted Label</label>
+            <select id="id_label" name="label">
+                <option value="" {% if not filters.label %}selected{% endif %}>All Labels</option>
+                <option value="Cyber Threat Found" {% if filters.label == 'Cyber Threat Found' %}selected{% endif %}>Cyber Threat Found</option>
+                <option value="No Cyber Threat Found" {% if filters.label == 'No Cyber Threat Found' %}selected{% endif %}>No Cyber Threat Found</option>
+            </select>
+        </div>
+        <div>
+            <label for="id_from">From Date</label>
+            <input id="id_from" name="from_date" type="date" value="{{ filters.from_date }}" />
+        </div>
+        <div>
+            <label for="id_to">To Date</label>
+            <input id="id_to" name="to_date" type="date" value="{{ filters.to_date }}" />
+        </div>
+        <div>
+            <label for="id_min_confidence">Min Confidence %</label>
+            <input id="id_min_confidence" name="min_confidence" type="number" min="0" max="100" step="0.1" value="{{ filters.min_confidence }}" placeholder="e.g. 90" />
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-filter" type="submit">Apply</button>
+            <a class="btn btn-reset" href="{% url 'view_prediction_audit_log' %}">Reset</a>
+            <a class="btn btn-clear" href="{% url 'view_prediction_audit_log' %}{% if clear_filters_query %}?{{ clear_filters_query }}{% endif %}">Clear Filters</a>
+        </div>
+    </form>
+
+    <div class="confidence-chips">
+        <a class="quick-chip {% if filters.min_confidence == '70' %}active{% endif %}" href="{% url 'view_prediction_audit_log' %}?{{ confidence_links.70 }}">Confidence >= 70%</a>
+        <a class="quick-chip {% if filters.min_confidence == '80' %}active{% endif %}" href="{% url 'view_prediction_audit_log' %}?{{ confidence_links.80 }}">Confidence >= 80%</a>
+        <a class="quick-chip {% if filters.min_confidence == '90' %}active{% endif %}" href="{% url 'view_prediction_audit_log' %}?{{ confidence_links.90 }}">Confidence >= 90%</a>
+        <a class="quick-chip {% if filters.min_confidence == '95' %}active{% endif %}" href="{% url 'view_prediction_audit_log' %}?{{ confidence_links.95 }}">Confidence >= 95%</a>
+    </div>
+
+    <div class="toolbar">
+        <a class="btn btn-export-xls" href="{% url 'download_prediction_audit_log' %}{% if export_query %}?{{ export_query }}{% endif %}">Export Filtered XLS</a>
+        <a class="btn btn-export-csv" href="{% url 'download_prediction_audit_log_csv' %}{% if export_query %}?{{ export_query }}{% endif %}">Export Filtered CSV</a>
+    </div>
+
+    <div class="quick-filters">
+        <a class="quick-chip {% if not filters.quick %}active{% endif %}" href="{% url 'view_prediction_audit_log' %}{% if quick_links.all %}?{{ quick_links.all }}{% endif %}">All</a>
+        <a class="quick-chip {% if filters.quick == 'today' %}active{% endif %}" href="{% url 'view_prediction_audit_log' %}?{{ quick_links.today }}">Today</a>
+        <a class="quick-chip {% if filters.quick == 'last7' %}active{% endif %}" href="{% url 'view_prediction_audit_log' %}?{{ quick_links.last7 }}">Last 7 Days</a>
+        <a class="quick-chip {% if filters.quick == 'threat' %}active{% endif %}" href="{% url 'view_prediction_audit_log' %}?{{ quick_links.threat }}">Threat Only</a>
+        <a class="quick-chip {% if filters.quick == 'safe' %}active{% endif %}" href="{% url 'view_prediction_audit_log' %}?{{ quick_links.safe }}">No Threat Only</a>
+    </div>
+
+    <div class="summary-meter">
+        <div class="meter-track">
+            <div class="meter-threat" style="width: {{ stats.threat_pct }}%;"></div>
+            <div class="meter-safe" style="width: {{ stats.safe_pct }}%;"></div>
+        </div>
+        <span class="meter-label">Threat: {{ stats.threat_pct }}%</span>
+        <span class="meter-label">No Threat: {{ stats.safe_pct }}%</span>
+    </div>
+
+    {% if trend_rows %}
+    <div class="trend-card">
+        <h4 class="trend-title">7-Day Threat Activity Trend (Filtered)</h4>
+        {% for row in trend_rows %}
+        <div class="trend-row">
+            <div>{{ row.day }}</div>
+            <div class="trend-bar-wrap">
+                <div class="trend-bar" style="width: {{ row.width_pct }}%;"></div>
+            </div>
+            <div class="trend-meta">Total: {{ row.total }} | Threat: {{ row.threat }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="audit-scroll">
+        <table class="audit-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>FID</th>
+                    <th>Predicted Label</th>
+                    <th>Confidence</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rec in records %}
+                <tr>
+                    <td><a href="{% url 'view_user_prediction_history' rec.username %}{% if return_to %}?return_to={{ return_to|urlencode }}{% endif %}">{{ rec.username }}</a></td>
+                    <td>{{ rec.fid }}</td>
+                    <td>
+                        {% if rec.predicted_label == 'Cyber Threat Found' %}
+                        <span class="badge threat">{{ rec.predicted_label }}</span>
+                        {% else %}
+                        <span class="badge safe">{{ rec.predicted_label }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ rec.confidence }}%</td>
+                    <td>{{ rec.created_at }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-msg">No audit records available yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if page_obj %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?{% if query_tail %}{{ query_tail }}&{% endif %}page=1">First</a>
+            <a href="?{% if query_tail %}{{ query_tail }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+        <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?{% if query_tail %}{{ query_tail }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+            <a href="?{% if query_tail %}{{ query_tail }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Last</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

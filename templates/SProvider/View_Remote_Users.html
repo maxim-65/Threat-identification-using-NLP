@@ -1,0 +1,127 @@
+{% extends 'SProvider/Header.html' %}
+{% block researchblock %}
+
+<style>
+	.page-wrap {
+		background: #ffffff;
+		border-radius: 14px;
+		padding: 16px;
+		border: 1px solid #e2e8f0;
+		box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+	}
+
+	.page-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		flex-wrap: wrap;
+		margin-bottom: 14px;
+	}
+
+	.page-title {
+		margin: 0;
+		font-size: 1.12rem;
+		font-weight: 800;
+		color: #0b6e6e;
+	}
+
+	.meta-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 8px 12px;
+		border-radius: 999px;
+		color: #0c4a6e;
+		background: #e0f2fe;
+		border: 1px solid #7dd3fc;
+		font-size: 0.82rem;
+		font-weight: 700;
+	}
+
+	.table-wrap {
+		overflow: auto;
+		border: 1px solid #e2e8f0;
+		border-radius: 12px;
+	}
+
+	table.grid {
+		width: 100%;
+		min-width: 900px;
+		border-collapse: collapse;
+	}
+
+	.grid th,
+	.grid td {
+		padding: 11px;
+		border-bottom: 1px solid #e5e7eb;
+		text-align: left;
+		font-size: 0.9rem;
+		color: #0f172a;
+		vertical-align: top;
+	}
+
+	.grid th {
+		background: #0b6e6e;
+		color: #ffffff;
+		font-weight: 800;
+		position: sticky;
+		top: 0;
+		z-index: 1;
+	}
+
+	.grid tr:nth-child(even) td {
+		background: #f8fafc;
+	}
+
+	.empty {
+		text-align: center;
+		color: #64748b;
+		font-weight: 700;
+		padding: 18px;
+	}
+</style>
+
+<div class="page-wrap">
+	<div class="page-head">
+		<h2 class="page-title">All Remote Users</h2>
+		<span class="meta-pill">Total Users: {{ objects|length }}</span>
+	</div>
+
+	<div class="table-wrap">
+		<table class="grid">
+			<thead>
+				<tr>
+					<th>User Name</th>
+					<th>Email</th>
+					<th>Gender</th>
+					<th>Address</th>
+					<th>Mobile</th>
+					<th>Country</th>
+					<th>State</th>
+					<th>City</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for o in objects %}
+				<tr>
+					<td>{{ o.username }}</td>
+					<td>{{ o.email }}</td>
+					<td>{{ o.gender }}</td>
+					<td>{{ o.address }}</td>
+					<td>{{ o.phoneno }}</td>
+					<td>{{ o.country }}</td>
+					<td>{{ o.state }}</td>
+					<td>{{ o.city }}</td>
+				</tr>
+				{% empty %}
+				<tr>
+					<td colspan="8" class="empty">No remote users found.</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+{% endblock %}
