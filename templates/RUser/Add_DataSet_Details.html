@@ -1,0 +1,48 @@
+{% extends 'RUser/Header.html' %}
+{% block researchblock %}
+
+<style>
+  .card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 18px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  .title {
+    margin: 0 0 10px;
+    color: #0b6e6e;
+    font-weight: 800;
+  }
+
+  .note {
+    margin: 0;
+    color: #334155;
+    line-height: 1.5;
+  }
+
+  .empty {
+    margin-top: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+  }
+</style>
+
+<div class="card">
+  <h2 class="title">Dataset Details</h2>
+  <p class="note">
+    This screen is reserved for dataset preview/import details.
+  </p>
+
+  {% if excel_data %}
+  <div class="empty">{{ excel_data }}</div>
+  {% else %}
+  <div class="empty">No dataset details available yet.</div>
+  {% endif %}
+</div>
+
+{% endblock %}
