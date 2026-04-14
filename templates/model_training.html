@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% block page_title %}Model Training{% endblock %}
+
+{% block extra_css %}
+<style>
+    .training-container {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .upload-section {
+        background: linear-gradient(135deg, rgba(11, 110, 110, 0.08), rgba(31, 182, 207, 0.08));
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 700;
+        color: #0b6e6e;
+    }
+
+    .form-group input[type="file"] {
+        padding: 8px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        width: 100%;
+    }
+
+    .form-group input[type="submit"] {
+        background: linear-gradient(135deg, #0b6e6e, #1fb6cf);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 700;
+        transition: filter 0.2s ease;
+    }
+
+    .form-group input[type="submit"]:hover {
+        filter: brightness(1.1);
+    }
+
+    .upload-note {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-top: 8px;
+    }
+
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .summary-card {
+        padding: 16px;
+        border-radius: 8px;
+        color: white;
+        text-align: center;
+    }
+
+    .summary-card.primary {
+        background: linear-gradient(135deg, #0b6e6e, #1fb6cf);
+    }
+
+    .summary-card.warning {
+        background: linear-gradient(135deg, #f59e0b, #ef476f);
+    }
+
+    .summary-card.info {
+        background: linear-gradient(135deg, #2563eb, #0ea5e9);
+    }
+
+    .summary-card .label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+
+    .summary-card .value {
+        font-size: 1.4rem;
+        font-weight: 800;
+        margin-top: 6px;
+    }
+
+    .results-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .results-table th {
+        background: #0b6e6e;
+        color: white;
+        padding: 12px;
+        text-align: left;
+        font-weight: 700;
+    }
+
+    .results-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .results-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .action-buttons a, .action-buttons button {
+        padding: 10px 16px;
+        background: linear-gradient(135deg, #0b6e6e, #1fb6cf);
+        color: white;
+        text-decoration: none;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: filter 0.2s ease;
+    }
+
+    .action-buttons a:hover, .action-buttons button:hover {
+        filter: brightness(1.1);
+    }
+
+    @media (max-width: 768px) {
+        .summary-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="training-container">
+    <div class="card-header">
+        <h2>{{ page_title }}</h2>
+        {% if show_refresh %}
+        <a href="{% url 'refresh_prediction_model_cache' %}" class="btn-primary">Refresh Cache</a>
+        {% endif %}
+    </div>
+
+    {% if show_upload %}
+    <div class="upload-section">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="dataset_file">Select CSV File</label>
+                <input id="dataset_file" type="file" name="dataset_file" accept=".csv" required>
+                <p class="upload-note">
+                    <strong>Required columns:</strong> tweet_text, Label (0/1 or threat/no-threat)
+                </p>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Upload and Train">
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if status_message %}
+    <div class="message-box message-info">{{ status_message }}</div>
+    {% endif %}
+
+    {% if summary %}
+    <div class="summary-cards">
+        <div class="summary-card primary">
+            <div class="label">Models Trained</div>
+            <div class="value">{{ summary.total_models }}</div>
+        </div>
+        <div class="summary-card warning">
+            <div class="label">Best Model</div>
+            <div class="value" style="font-size: 1rem;">{{ summary.best_model }}</div>
+        </div>
+        <div class="summary-card info">
+            <div class="label">Best Accuracy</div>
+            <div class="value">{{ summary.best_score|default:"--" }}%</div>
+        </div>
+        <div class="summary-card primary">
+            <div class="label">Avg Accuracy</div>
+            <div class="value">{{ summary.avg_score|default:"--" }}%</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="table-container">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Model Name</th>
+                    <th>Accuracy Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    <td>{{ result.names }}</td>
+                    <td><strong>{{ result.ratio|floatformat:2 }}%</strong></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2" class="empty-state">
+                        No training results yet. {% if show_upload %}Upload a CSV file to get started.{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

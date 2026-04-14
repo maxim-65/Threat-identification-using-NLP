@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block page_title %}Analytics Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chart-section {
+        background: white;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .chart-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .chart-controls button {
+        padding: 8px 14px;
+        background: linear-gradient(135deg, #0b6e6e, #1fb6cf);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .chart-controls button.active {
+        background: linear-gradient(135deg, #f59e0b, #ef476f);
+    }
+
+    .chart-controls button:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+    }
+
+    #chartContainer {
+        width: 100%;
+        height: 480px;
+        position: relative;
+    }
+
+    @media (max-width: 900px) {
+        #chartContainer {
+            height: 320px;
+        }
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 16px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0b6e6e;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-top: 6px;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="chart-section">
+    <div class="card-header">
+        <h2>{{ chart_title }}</h2>
+        <div class="chart-controls">
+            <button class="chart-btn active" data-type="line">Line</button>
+            <button class="chart-btn" data-type="bar">Bar</button>
+            <button class="chart-btn" data-type="pie">Pie</button>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        {% for stat in statistics %}
+        <div class="stat-card">
+            <div class="stat-value">{{ stat.value }}</div>
+            <div class="stat-label">{{ stat.label }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>{{ col1_header }}</th>
+                    <th>{{ col2_header }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.names }}</td>
+                    <td>{{ item.accuracy_avg|default:item.ratio_avg|floatformat:2 }}%</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2" class="empty-state">No data available</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const chartBtns = document.querySelectorAll('.chart-btn');
+let currentChart = null;
+
+chartBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+        chartBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const chartType = this.dataset.type;
+        // Chart creation logic here
+    });
+});
+</script>
+{% endblock %}

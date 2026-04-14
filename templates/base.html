@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block page_title %}Cyber Threat Identification{% endblock %}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet" />
+    
+    <style>
+        :root {
+            --c1: #0b6e6e;
+            --c2: #1fb6cf;
+            --c3: #f59e0b;
+            --c4: #ef476f;
+            --panel: rgba(255, 255, 255, 0.92);
+            --text: #1f2937;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+            background: linear-gradient(135deg, rgba(11, 110, 110, 0.82), rgba(31, 182, 207, 0.65)),
+                  url("{% static 'bg.jpg' %}") center/cover fixed no-repeat;
+        }
+
+        .app-container {
+            max-width: 1250px;
+            margin: 18px auto;
+            border-radius: 18px;
+            background: var(--panel);
+            overflow: hidden;
+            box-shadow: 0 16px 42px rgba(0, 0, 0, 0.28);
+        }
+
+        .header-bar {
+            display: grid;
+            grid-template-columns: 130px 1fr 130px;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            background: linear-gradient(100deg, var(--c1), var(--c2), var(--c3));
+        }
+
+        .header-bar h1 {
+            margin: 0;
+            color: #fff;
+            font-size: 1.2rem;
+            text-align: center;
+            line-height: 1.35;
+            font-weight: 800;
+        }
+
+        .header-bar img {
+            width: 100%;
+            max-width: 115px;
+            height: 72px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            padding: 12px;
+            border-bottom: 4px solid var(--c4);
+            background: #fff;
+        }
+
+        .nav-menu a, .nav-menu button {
+            text-decoration: none;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.82rem;
+            padding: 9px 14px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--c1), var(--c2));
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, filter 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-menu a.active {
+            background: linear-gradient(135deg, var(--c3), var(--c4));
+        }
+
+        .main-content {
+            padding: 24px;
+            min-height: 400px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card-header h2 {
+            margin: 0;
+            color: var(--c1);
+            font-size: 1.12rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--c1), var(--c2));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: filter 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+
+        .message-box {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .message-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+        .message-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .message-info {
+            background: #e0f2fe;
+            color: #0c4a6e;
+            border: 1px solid #7dd3fc;
+        }
+
+        .table-container {
+            overflow: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+
+        table th {
+            background: var(--c1);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+        }
+
+        table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        table tbody tr:hover {
+            background: rgba(11, 110, 110, 0.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #64748b;
+            padding: 32px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-menu {
+                justify-content: flex-start;
+                overflow-x: auto;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="header-bar">
+            <img src="{% static 'banner.jpg' %}" alt="Banner" />
+            <h1>{% block app_title %}Automated Emerging Cyber Threat Identification{% endblock %}</h1>
+            <img src="{% static 'banner.jpg' %}" alt="Analytics" />
+        </div>
+
+        <nav class="nav-menu">
+            {% block navigation %}{% endblock %}
+        </nav>
+
+        <div class="main-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message-box message-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>
