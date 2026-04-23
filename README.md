@@ -260,6 +260,25 @@ Prediction summary currently stored:
 - **Production Ready**: Models survive application restarts, enabling true horizontal scaling
 - **Model Management**: `ModelManager` class handles all serialization/deserialization
 
+### 🔹 7. Production Monitoring & Logging (v2.3)
+**Achievement**: "Designed and implemented production monitoring infrastructure with input validation, structured logging, and real-time system metrics tracking for compliance and security"
+- **Structured Logging**: RequestLogger with 4 independent log streams (API, training, errors, performance)
+  - Rotating file handlers (10MB max, 5 backups) prevent disk space issues
+  - Timestamps and structured format enable audit trails and forensic analysis
+- **Input Validation Framework**: InputValidator prevents XSS and injection attacks
+  - HTML escaping sanitizes user inputs before model processing
+  - Regex validation enforces safe filename, username, and chart type constraints
+  - Batch validation ensures request size limits (max 100 texts per batch)
+- **Real-Time Monitoring Endpoints**:
+  - `/api/system_metrics/`: CPU, memory, disk usage for infrastructure monitoring
+  - `/api/prediction_stats/`: Threat trends, average confidence, top users analysis
+  - `/api/model_status/`: Cache status, model file sizes, persistence verification
+  - `/api/stats/`: Aggregate dashboard statistics with threat detection rate
+- **Security & Compliance**:
+  - OWASP compliance: XSS prevention, injection attack mitigation
+  - Audit-ready: All API requests logged with timing and user context
+  - GDPR-compatible: Modular logging enables selective data retention
+
 ## Insights
 - **Logistic Regression** performs best (79.34% accuracy) with good interpretability via coefficients
 - **F1-score vs Accuracy**: F1-score is used for model selection due to class imbalance
@@ -316,6 +335,18 @@ python manage.py migrate
 - Real-world deployments should review privacy, bias, and access-control concerns.
 
 ## Future Improvements
+
+### ✅ Recently Implemented (v2.3 - Production Monitoring & Logging):
+- ✅ Structured logging with 4 independent log streams (API, training, errors, performance)
+- ✅ Rotating file handlers for disk space management (10MB max, 5 backups)
+- ✅ Input validation framework with HTML escaping for XSS prevention
+- ✅ Batch validation utilities (max 100 texts per request)
+- ✅ System metrics monitoring endpoint (CPU, memory, disk)
+- ✅ Prediction statistics and trend analysis endpoint
+- ✅ Model cache status and persistence verification endpoint
+- ✅ Aggregate dashboard statistics endpoint
+- ✅ Integration of validators and loggers into all API endpoints
+- ✅ OWASP compliance for injection attack prevention
 
 ### ✅ Recently Implemented (v2.2 - Model Persistence):
 - ✅ Model persistence with joblib serialization
@@ -539,6 +570,115 @@ curl -X POST http://localhost:8000/api/predict/ \
 
 # Get model metrics
 curl http://localhost:8000/api/metrics/
+```
+
+## Production Monitoring Endpoints (v2.3)
+
+### System Performance Monitoring
+
+#### 1. **System Metrics**
+```
+GET /api/system_metrics/
+```
+
+Monitor CPU, memory, and disk usage in real-time for infrastructure alerts.
+
+**Response**:
+```json
+{
+  "success": true,
+  "system": {
+    "cpu": {
+      "percent": 45.2,
+      "count": 8
+    },
+    "memory": {
+      "percent": 62.5,
+      "available_mb": 3840.25
+    },
+    "disk": {
+      "percent": 58.3,
+      "free_mb": 204800.50
+    }
+  }
+}
+```
+
+#### 2. **Prediction Statistics**
+```
+GET /api/prediction_stats/
+```
+
+Get detailed threat detection trends and user analytics.
+
+**Response**:
+```json
+{
+  "success": true,
+  "predictions": {
+    "total": 2847,
+    "threats_found": 2431,
+    "no_threats": 416,
+    "threat_ratio_percent": 85.41,
+    "avg_confidence": 0.847,
+    "last_24h_count": 142
+  },
+  "top_users": [
+    {"username": "analyst_01", "count": 245, "avg_conf": 0.84},
+    {"username": "analyst_02", "count": 198, "avg_conf": 0.86}
+  ]
+}
+```
+
+#### 3. **Model Cache Status**
+```
+GET /api/model_status/
+```
+
+Check model persistence and caching status for performance optimization.
+
+**Response**:
+```json
+{
+  "success": true,
+  "models": [
+    {"names": "Logistic Regression", "ratio": "79.34% (P:0.81 R:0.78 F1:0.79)"},
+    {"names": "Linear SVM", "ratio": "76.84% (P:0.78 R:0.76 F1:0.77)"}
+  ],
+  "model_files": [
+    {"name": "Multinomial Naive Bayes", "cached": true, "size_mb": 2.14},
+    {"name": "Support Vector Machine", "cached": true, "size_mb": 1.87},
+    {"name": "Logistic Regression", "cached": true, "size_mb": 0.45},
+    {"name": "Extra Tree Classifier", "cached": true, "size_mb": 3.22}
+  ],
+  "vectorizer": {
+    "cached": true,
+    "size_mb": 0.58
+  },
+  "total_model_size_mb": 8.26
+}
+```
+
+#### 4. **Aggregate Dashboard Statistics**
+```
+GET /api/stats/
+```
+
+Get high-level summary for monitoring dashboards.
+
+**Response**:
+```json
+{
+  "success": true,
+  "timestamp": "2024-05-15T14:32:18.123456",
+  "statistics": {
+    "total_predictions": 2847,
+    "threats_detected": 2431,
+    "threat_detection_rate": "85.41%",
+    "models_trained": 4,
+    "api_version": "2.2"
+  }
+}
 ```
 
 ## Database Schema
