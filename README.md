@@ -34,8 +34,26 @@ The application converts text into numerical features, trains multiple machine l
 - `templates/base.html` - shared base layout
 - `templates/analytics_chart.html` - consolidated analytics page
 - `templates/model_training.html` - consolidated training page
+- `docs/screenshots/` - captured web page screenshots used in this README
 - `data/Datasets.csv` - bundled training dataset
 - `static/` - images and static assets
+
+## Screenshots
+
+### Home Page
+![Home Page](docs/screenshots/home-page.png)
+
+### Remote User Login
+![Remote User Login](docs/screenshots/remote-user-login.png)
+
+### Service Provider Login
+![Service Provider Login](docs/screenshots/service-provider-login.png)
+
+### Registration Page
+![Registration Page](docs/screenshots/register-page.png)
+
+### Service Provider Dashboard
+![Service Provider Dashboard](docs/screenshots/service-provider-home.png)
 
 ## Dataset Details
 - Source: bundled project CSV file (`data/Datasets.csv`)

@@ -23,7 +23,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 def serviceproviderlogin(request):
     """Service provider login handler"""
     if request.method == 'POST':
-        provider_email = request.POST.get('email', '').strip()
+        provider_email = request.POST.get('email', '').strip() or request.POST.get('username', '').strip()
         provider_password = request.POST.get('password', '').strip()
         
         if provider_email == 'admin@provider' and provider_password == 'admin123':
