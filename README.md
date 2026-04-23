@@ -40,29 +40,68 @@ The application converts text into numerical features, trains multiple machine l
 
 ## Screenshots
 
-### Home Page
-![Home Page](docs/screenshots/home-page.png)
+### Public and Remote User Pages
 
-### Remote User Login
+#### Home (`/`)
+![Home Page](docs/screenshots/home-page-latest.png)
+
+#### Remote User Login (`/login/`)
 ![Remote User Login](docs/screenshots/remote-user-login.png)
 
-### Service Provider Login
-![Service Provider Login](docs/screenshots/service-provider-login.png)
-
-### Registration Page
+#### Registration Form (`/Register1/`)
 ![Registration Page](docs/screenshots/register-page.png)
 
-### Service Provider Dashboard
+#### Registration Success (`/Register1/` POST)
+![Registration Success](docs/screenshots/remote-user-register-success.png)
+
+#### User Profile (`/ViewYourProfile/`)
+![Remote User Profile](docs/screenshots/remote-user-profile.png)
+
+#### Prediction Form (`/Predict_Cyber_Threat_Identification_Type/`)
+![Prediction Form](docs/screenshots/remote-user-predict-form.png)
+
+#### Prediction Result (`/Predict_Cyber_Threat_Identification_Type/` POST)
+![Prediction Result](docs/screenshots/remote-user-predict-result.png)
+
+### Service Provider Pages
+
+#### Service Provider Login (`/serviceproviderlogin/`)
+![Service Provider Login](docs/screenshots/service-provider-login.png)
+
+#### Dashboard Home (`/service_provider_home/`)
 ![Service Provider Dashboard](docs/screenshots/service-provider-home.png)
 
-### Audit Log
-![Audit Log](docs/screenshots/audit-log.png)
+#### View Remote Users (`/View_Remote_Users/`)
+![View Remote Users](docs/screenshots/service-provider-users.png)
 
-### Model Accuracy Dashboard
-![Model Accuracy Dashboard](docs/screenshots/model-accuracies.png)
+#### Prediction Records (`/View_Predicted_Cyber_Threat_Identification_Type/`)
+![Predictions Table](docs/screenshots/service-provider-predictions.png)
 
-### Predictions Table
-![Predictions Table](docs/screenshots/predictions-table.png)
+#### Prediction Audit Log (`/view_prediction_audit_log/`)
+![Audit Log](docs/screenshots/service-provider-audit-log.png)
+
+#### Model Accuracies (`/train_model/`)
+![Model Accuracy Dashboard](docs/screenshots/service-provider-train-model.png)
+
+#### Train New Data (`/train_models/`)
+![Train New Data](docs/screenshots/service-provider-train-models.png)
+
+#### Threat Ratio Chart (`/charts/line/`)
+![Threat Ratio Chart](docs/screenshots/service-provider-chart-ratio.png)
+
+#### Accuracy Chart (`/charts1/line/`)
+![Accuracy Chart](docs/screenshots/service-provider-chart-accuracy.png)
+
+#### Bar Accuracy Chart (`/likeschart/bar/`)
+![Bar Accuracy Chart](docs/screenshots/service-provider-chart-bar.png)
+
+#### Threat Ratio View (`/View_Predicted_Cyber_Threat_Identification_Type_Ratio/`)
+![Threat Ratio View](docs/screenshots/service-provider-ratio-view.png)
+
+#### User Prediction History (`/view_user_prediction_history/<username>/`)
+![User Prediction History](docs/screenshots/service-provider-user-history.png)
+
+Note: Download endpoints (`/Download_Predicted_DataSets/`, `/download_prediction_audit_log/`, `/download_prediction_audit_log_csv/`) return files and do not have dedicated HTML pages for screenshots.
 
 ## Architecture Diagram
 ```mermaid
