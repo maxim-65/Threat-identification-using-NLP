@@ -316,12 +316,13 @@ def view_prediction_audit_log(request):
 @require_service_provider
 def view_user_prediction_history(request, username):
     """View prediction history for a specific user"""
-    records = prediction_audit.objects.filter(username=username).order_by('-created_at')[:500]
+    base_qs = prediction_audit.objects.filter(username=username)
     stats = {
-        'total': records.count(),
-        'threat_found': records.filter(predicted_label='Cyber Threat Found').count(),
-        'threat_safe': records.filter(predicted_label='No Cyber Threat Found').count(),
+        'total': base_qs.count(),
+        'threat_total': base_qs.filter(predicted_label='Cyber Threat Found').count(),
+        'safe_total': base_qs.filter(predicted_label='No Cyber Threat Found').count(),
     }
+    records = base_qs.order_by('-created_at')[:500]
     
     return_to = request.GET.get('return_to', '').strip()
     back_url = '/view_prediction_audit_log/'
