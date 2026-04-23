@@ -10,6 +10,7 @@ from django.db.models import Avg, Count
 
 from apps.Remote_User.models import detection_accuracy, prediction_audit
 from apps.core.services import AnalyticsService, TrainingService
+from apps.core.model_manager import ModelManager
 
 
 @csrf_exempt
@@ -25,10 +26,14 @@ def predict_threat(request):
         "success": true,
         "prediction": "Cyber Threat Found",
         "confidence": 0.87,
-        "model_used": "Logistic Regression"
+        "model_used": "Logistic Regression",
+        "inference_time_ms": 45
     }
     """
     try:
+        import time
+        start_time = time.time()
+        
         data = json.loads(request.body)
         text_input = data.get('text', '').strip()
         
@@ -44,22 +49,27 @@ def predict_threat(request):
                 'error': 'Text exceeds maximum length of 3000 characters'
             }, status=400)
         
-        # Use best model (Logistic Regression - 79.34% accuracy)
-        from sklearn.feature_extraction.text import TfidfVectorizer
-        from sklearn.linear_model import LogisticRegression
-        import pandas as pd
-        
         try:
-            # Load and train on default dataset (in production, load saved model)
-            df = TrainingService.load_default_dataset()
-            df = TrainingService.normalize_labels(df)
+            from sklearn.linear_model import LogisticRegression
             
-            vectorizer = TfidfVectorizer(max_features=500, max_df=0.8, min_df=2)
-            X = vectorizer.fit_transform(df['tweet_text'].astype(str))
-            y = df['Label']
+            # Try to load cached model first (fast path)
+            vectorizer = ModelManager.load_vectorizer()
+            model = ModelManager.load_model('logistic_regression') if vectorizer else None
             
-            model = LogisticRegression(max_iter=200)
-            model.fit(X, y)
+            if model is None or vectorizer is None:
+                # Fallback: train on-the-fly (slower but works without cached models)
+                from sklearn.feature_extraction.text import TfidfVectorizer
+                import pandas as pd
+                
+                df = TrainingService.load_default_dataset()
+                df = TrainingService.normalize_labels(df)
+                
+                vectorizer = TfidfVectorizer(max_features=500, max_df=0.8, min_df=2)
+                X = vectorizer.fit_transform(df['tweet_text'].astype(str))
+                y = df['Label']
+                
+                model = LogisticRegression(max_iter=200)
+                model.fit(X, y)
             
             # Predict
             text_vec = vectorizer.transform([text_input])
@@ -68,12 +78,15 @@ def predict_threat(request):
             
             prediction_label = "Cyber Threat Found" if prediction == 1 else "No Cyber Threat Found"
             
+            inference_time = round((time.time() - start_time) * 1000, 2)
+            
             return JsonResponse({
                 'success': True,
                 'prediction': prediction_label,
                 'confidence': round(confidence, 3),
                 'model_used': 'Logistic Regression',
-                'input_length': len(text_input)
+                'input_length': len(text_input),
+                'inference_time_ms': inference_time
             })
         
         except Exception as e:
@@ -112,6 +125,9 @@ def batch_predict(request):
     }
     """
     try:
+        import time
+        start_time = time.time()
+        
         data = json.loads(request.body)
         texts = data.get('texts', [])
         
@@ -134,18 +150,24 @@ def batch_predict(request):
             }, status=400)
         
         try:
-            from sklearn.feature_extraction.text import TfidfVectorizer
             from sklearn.linear_model import LogisticRegression
+            from sklearn.feature_extraction.text import TfidfVectorizer
             
-            df = TrainingService.load_default_dataset()
-            df = TrainingService.normalize_labels(df)
+            # Try to load cached model first
+            vectorizer = ModelManager.load_vectorizer()
+            model = ModelManager.load_model('logistic_regression') if vectorizer else None
             
-            vectorizer = TfidfVectorizer(max_features=500, max_df=0.8, min_df=2)
-            X = vectorizer.fit_transform(df['tweet_text'].astype(str))
-            y = df['Label']
-            
-            model = LogisticRegression(max_iter=200)
-            model.fit(X, y)
+            if model is None or vectorizer is None:
+                # Fallback: train on-the-fly
+                df = TrainingService.load_default_dataset()
+                df = TrainingService.normalize_labels(df)
+                
+                vectorizer = TfidfVectorizer(max_features=500, max_df=0.8, min_df=2)
+                X = vectorizer.fit_transform(df['tweet_text'].astype(str))
+                y = df['Label']
+                
+                model = LogisticRegression(max_iter=200)
+                model.fit(X, y)
             
             # Batch predict
             texts_vec = vectorizer.transform(texts)
@@ -161,10 +183,13 @@ def batch_predict(request):
                     'confidence': round(float(conf), 3)
                 })
             
+            inference_time = round((time.time() - start_time) * 1000, 2)
+            
             return JsonResponse({
                 'success': True,
                 'batch_size': len(texts),
-                'results': results
+                'results': results,
+                'inference_time_ms': inference_time
             })
         
         except Exception as e:

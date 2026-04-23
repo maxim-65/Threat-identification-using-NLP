@@ -17,6 +17,7 @@ from sklearn.metrics import (
 )
 
 from apps.Remote_User.models import detection_accuracy, detection_ratio
+from apps.core.model_manager import ModelManager
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -178,8 +179,11 @@ class TrainingService:
         return top_features
     
     @staticmethod
-    def store_training_results(results):
-        """Store advanced training results to database (metrics displayed in dashboard)"""
+    def store_training_results(results, vectorizer=None, models=None):
+        """
+        Store advanced training results to database (metrics displayed in dashboard)
+        Also persists models and vectorizer to disk for fast inference
+        """
         with transaction.atomic():
             detection_accuracy.objects.all().delete()
             for result in results:
@@ -189,6 +193,17 @@ class TrainingService:
                     names=result['name'],
                     ratio=metric_display  # Store all metrics in ratio field
                 )
+        
+        # Persist models and vectorizer to disk
+        if vectorizer is not None:
+            ModelManager.save_vectorizer(vectorizer)
+        
+        if models is not None:
+            for model_name, model in models.items():
+                # Convert model name for file storage
+                file_name = model_name.lower().replace(' ', '_')
+                ModelManager.save_model(model, file_name)
+        
         return results
     
     @staticmethod

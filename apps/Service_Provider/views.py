@@ -23,7 +23,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 def serviceproviderlogin(request):
     """Service provider login handler"""
     if request.method == 'POST':
-        provider_email = request.POST.get('email', '').strip() or request.POST.get('username', '').strip()
+        provider_email = request.POST.get('email', '').strip()
         provider_password = request.POST.get('password', '').strip()
         
         if provider_email == 'admin@provider' and provider_password == 'admin123':
@@ -127,7 +127,7 @@ def train_models(request):
         try:
             df = TrainingService.load_uploaded_dataset(uploaded_file)
             results, vectorizer, models = TrainingService.train_models(df)
-            TrainingService.store_training_results(results)
+            TrainingService.store_training_results(results, vectorizer, models)
             summary = TrainingService.get_summary_statistics(results)
             
             messages.success(request, f'Training completed: {uploaded_file.name}')
@@ -316,13 +316,12 @@ def view_prediction_audit_log(request):
 @require_service_provider
 def view_user_prediction_history(request, username):
     """View prediction history for a specific user"""
-    base_qs = prediction_audit.objects.filter(username=username)
+    records = prediction_audit.objects.filter(username=username).order_by('-created_at')[:500]
     stats = {
-        'total': base_qs.count(),
-        'threat_total': base_qs.filter(predicted_label='Cyber Threat Found').count(),
-        'safe_total': base_qs.filter(predicted_label='No Cyber Threat Found').count(),
+        'total': records.count(),
+        'threat_found': records.filter(predicted_label='Cyber Threat Found').count(),
+        'threat_safe': records.filter(predicted_label='No Cyber Threat Found').count(),
     }
-    records = base_qs.order_by('-created_at')[:500]
     
     return_to = request.GET.get('return_to', '').strip()
     back_url = '/view_prediction_audit_log/'
