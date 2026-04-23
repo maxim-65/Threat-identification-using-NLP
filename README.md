@@ -20,6 +20,8 @@ The application converts text into numerical features, trains multiple machine l
 - **TF-IDF Vectorization**: Improved from CountVectorizer for better semantic understanding
 - **Data Imbalance Handling**: SMOTE for balanced training sets
 - **Model Explainability**: Feature importance analysis for interpretability
+- **REST API Endpoints**: Programmatic threat detection (single + batch predictions)
+- **Production Monitoring**: Health checks and real-time metrics API
 
 ## Tech Stack
 - Backend: Django 5.2.3, Python 3.10
@@ -239,6 +241,16 @@ Prediction summary currently stored:
 - Enables security teams to understand why model labeled text as threat
 - Supports audit trail and compliance requirements
 
+### 🔹 5. Production-Ready REST API (v2.1)
+**Achievement**: "Designed and implemented REST API for programmatic threat detection with batching and monitoring"
+- **Single Prediction API**: `/api/predict/` for real-time threat identification
+- **Batch Processing**: `/api/batch_predict/` handles up to 100 texts per request
+- **Metrics Monitoring**: `/api/metrics/` provides real-time model performance visibility
+- **Health Checks**: `/api/health/` enables production monitoring and alerting
+- **Comprehensive Documentation**: `/api/docs/` provides full API specification with examples
+- Endpoints support JSON request/response for seamless integration with SIEM, automation platforms
+- CSRF-exempt for external API calls; production should add JWT authentication
+
 ## Insights
 - **Logistic Regression** performs best (79.34% accuracy) with good interpretability via coefficients
 - **F1-score vs Accuracy**: F1-score is used for model selection due to class imbalance
@@ -296,7 +308,14 @@ python manage.py migrate
 
 ## Future Improvements
 
-### ✅ Recently Implemented (v2.0):
+### ✅ Recently Implemented (v2.1 - REST API):
+- ✅ Single & batch REST API endpoints for threat predictions
+- ✅ Metrics API for real-time model performance monitoring
+- ✅ Health check endpoint for service availability
+- ✅ Comprehensive API documentation endpoint
+- ✅ API usage examples (JavaScript, Python, cURL)
+
+### ✅ Previously Implemented (v2.0 - Advanced ML):
 - ✅ TF-IDF vectorization for improved feature representation
 - ✅ SMOTE for balanced class training
 - ✅ Advanced metrics (Precision, Recall, F1-score, Confusion Matrix)
@@ -304,15 +323,16 @@ python manage.py migrate
 - ✅ Metrics dashboard display in service provider interface
 
 ### 🚀 Next Priority Improvements:
-- **Transformer-based Embeddings**: Integrate BERT or DistilBERT for semantic understanding
-- **Real-time Predictions**: Add batch prediction pipeline with celery for high-volume threat feeds
+- **Model Persistence**: Save trained models to disk for faster predictions
+- **Async Batch Processing**: Celery tasks for high-volume batch predictions
+- **Transformer Embeddings**: Integrate BERT or DistilBERT for semantic understanding
 - **PostgreSQL Migration**: Scale to production with PostgreSQL for concurrent users
 - **Advanced Classification**: Multi-label threat classification (botnet, phishing, ransomware, etc.)
-- **API Integration**: REST API for third-party security tools integration
-- **Automated Retraining**: Scheduled model retraining pipeline with new threat samples
-- **Explainability Dashboard**: SHAP values visualization for individual predictions
+- **SHAP Explainability**: Individual prediction explanations with SHAP values
+- **API Authentication**: JWT tokens for secure API access
+- **Rate Limiting**: Prevent API abuse with request throttling
+- **Monitoring Dashboard**: Real-time API metrics (requests/sec, latency, errors)
 - **Performance Optimization**: Model quantization and pruning for edge deployment
-- **Monitoring & Alerts**: Real-time model performance degradation alerts
 
 ## API Endpoints
 
@@ -341,6 +361,167 @@ python manage.py migrate
 | `/view_user_prediction_history/<username>/` | GET | View specific user's predictions |
 | `/Download_Predicted_DataSets/` | GET | Download prediction records as CSV |
 | `/download_prediction_audit_log/` | GET | Download audit log as CSV |
+
+## REST API Endpoints (v2.0)
+
+### Programmatic Access to Threat Detection
+
+The API enables integration with external security systems, SIEM platforms, and automation workflows.
+
+#### 1. **Single Threat Prediction**
+```
+POST /api/predict/
+Content-Type: application/json
+
+{
+  "text": "Suspicious activity detected in network logs"
+}
+```
+
+**Response (Success)**:
+```json
+{
+  "success": true,
+  "prediction": "Cyber Threat Found",
+  "confidence": 0.87,
+  "model_used": "Logistic Regression",
+  "input_length": 45
+}
+```
+
+**Response (Error)**:
+```json
+{
+  "success": false,
+  "error": "Text field is required and cannot be empty"
+}
+```
+
+#### 2. **Batch Threat Predictions** (Up to 100 texts per request)
+```
+POST /api/batch_predict/
+Content-Type: application/json
+
+{
+  "texts": [
+    "malware detected",
+    "normal user activity",
+    "unauthorized access attempt"
+  ]
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "batch_size": 3,
+  "results": [
+    {"text": "malware detected", "prediction": "Cyber Threat Found", "confidence": 0.94},
+    {"text": "normal user activity", "prediction": "No Cyber Threat Found", "confidence": 0.78},
+    {"text": "unauthorized access attempt", "prediction": "Cyber Threat Found", "confidence": 0.89}
+  ]
+}
+```
+
+#### 3. **Get Model Metrics**
+```
+GET /api/metrics/
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "best_model": "Logistic Regression",
+  "best_accuracy": 79.34,
+  "models": [
+    {"name": "Logistic Regression", "accuracy": 79.34, "status": "best_model"},
+    {"name": "Linear SVM", "accuracy": 76.84, "status": "active"},
+    {"name": "Naive Bayes", "accuracy": 77.00, "status": "active"},
+    {"name": "Extra Tree Classifier", "accuracy": 75.12, "status": "active"}
+  ],
+  "predictions_summary": {
+    "total": 28,
+    "threats_found": 24,
+    "no_threats": 4,
+    "threat_ratio": "85.71%"
+  }
+}
+```
+
+#### 4. **Service Health Check**
+```
+GET /api/health/
+```
+
+**Response**:
+```json
+{
+  "status": "healthy",
+  "service": "Threat Detection API",
+  "models_available": 4,
+  "predictions_recorded": 28
+}
+```
+
+#### 5. **API Documentation**
+```
+GET /api/docs/
+```
+
+Returns full API specification with examples.
+
+### API Usage Examples
+
+**JavaScript/Node.js**:
+```javascript
+// Single prediction
+const response = await fetch('http://localhost:8000/api/predict/', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ text: 'suspected phishing email' })
+});
+const data = await response.json();
+console.log(`Prediction: ${data.prediction} (${data.confidence * 100}%)`);
+
+// Batch predictions
+const batchResponse = await fetch('http://localhost:8000/api/batch_predict/', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ texts: ['text1', 'text2', 'text3'] })
+});
+```
+
+**Python/Requests**:
+```python
+import requests
+
+# Get metrics
+response = requests.get('http://localhost:8000/api/metrics/')
+metrics = response.json()
+print(f"Best Model: {metrics['best_model']} ({metrics['best_accuracy']}%)")
+
+# Make prediction
+pred_response = requests.post('http://localhost:8000/api/predict/', 
+  json={'text': 'suspicious text'})
+pred = pred_response.json()
+print(f"Result: {pred['prediction']} ({pred['confidence']})")
+```
+
+**cURL**:
+```bash
+# Get health status
+curl http://localhost:8000/api/health/
+
+# Make single prediction
+curl -X POST http://localhost:8000/api/predict/ \
+  -H "Content-Type: application/json" \
+  -d '{"text":"malicious activity detected"}'
+
+# Get model metrics
+curl http://localhost:8000/api/metrics/
+```
 
 ## Database Schema
 
