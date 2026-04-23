@@ -55,6 +55,53 @@ The application converts text into numerical features, trains multiple machine l
 ### Service Provider Dashboard
 ![Service Provider Dashboard](docs/screenshots/service-provider-home.png)
 
+### Audit Log
+![Audit Log](docs/screenshots/audit-log.png)
+
+### Model Accuracy Dashboard
+![Model Accuracy Dashboard](docs/screenshots/model-accuracies.png)
+
+### Predictions Table
+![Predictions Table](docs/screenshots/predictions-table.png)
+
+## Architecture Diagram
+```mermaid
+flowchart LR
+   U[Remote User] -->|Register/Login| DJ[Django App]
+   SP[Service Provider] -->|Admin Login| DJ
+
+   DJ --> RV[Remote_User Views]
+   DJ --> SV[Service_Provider Views]
+   SV --> CORE[Core Services Layer]
+
+   CORE --> NLP[NLP Pipeline\nCountVectorizer + Classifiers]
+   RV --> NLP
+
+   NLP --> DB[(SQLite Database)]
+   RV --> DB
+   SV --> DB
+
+   DJ --> TPL[HTML Templates]
+   DJ --> ST[Static Assets]
+
+   DJ --> GUN[Gunicorn]
+   GUN --> RDR[Render Deployment]
+```
+
+## Pipeline Workflow
+```mermaid
+flowchart TD
+   A[Input Text] --> B[Preprocessing and Validation]
+   B --> C[Vectorization with CountVectorizer]
+   C --> D[Model Inference]
+   D --> E{Prediction}
+   E -->|Threat| F[Cyber Threat Found]
+   E -->|Safe| G[No Cyber Threat Found]
+   F --> H[Store Prediction and Audit Log]
+   G --> H
+   H --> I[Dashboard Metrics and Reports]
+```
+
 ## Dataset Details
 - Source: bundled project CSV file (`data/Datasets.csv`)
 - Size: 3,280 rows
