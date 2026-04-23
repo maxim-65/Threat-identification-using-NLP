@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from apps.Remote_User import views as remoteuser
 from apps.core import api
+from apps.core import monitoring
 from config import settings
 from apps.Service_Provider import views as serviceprovider
 from django.conf.urls.static import static
@@ -58,5 +59,11 @@ urlpatterns = [
     path('api/metrics/', api.model_metrics, name="api_metrics"),
     path('api/health/', api.health_check, name="api_health_check"),
     path('api/docs/', api.api_documentation, name="api_docs"),
+    
+    # Monitoring & Observability Endpoints (v2.3)
+    path('api/system_metrics/', monitoring.system_metrics, name="api_system_metrics"),
+    path('api/prediction_stats/', monitoring.prediction_stats, name="api_prediction_stats"),
+    path('api/model_status/', monitoring.model_status, name="api_model_status"),
+    path('api/stats/', monitoring.api_stats, name="api_stats"),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

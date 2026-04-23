@@ -114,11 +114,7 @@
                 {% for item in items %}
                 <tr>
                     <td>{{ item.names }}</td>
-                    {% if item.accuracy_avg is not None %}
-                    <td>{{ item.accuracy_avg|floatformat:2 }}%</td>
-                    {% else %}
-                    <td>{{ item.ratio_avg|floatformat:2 }}%</td>
-                    {% endif %}
+                    <td>{{ item.accuracy_avg|default:item.ratio_avg|floatformat:2 }}%</td>
                 </tr>
                 {% empty %}
                 <tr>

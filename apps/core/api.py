@@ -1,8 +1,10 @@
 """
 REST API Module
 Provides programmatic access to threat detection and model metrics
+Production-ready with input validation, comprehensive logging, and error handling
 """
 import json
+import time
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
@@ -11,6 +13,8 @@ from django.db.models import Avg, Count
 from apps.Remote_User.models import detection_accuracy, prediction_audit
 from apps.core.services import AnalyticsService, TrainingService
 from apps.core.model_manager import ModelManager
+from apps.core.validators import InputValidator
+from apps.core.logging_config import get_logger
 
 
 @csrf_exempt
@@ -30,23 +34,20 @@ def predict_threat(request):
         "inference_time_ms": 45
     }
     """
+    start_time = time.time()
+    logger = get_logger()
+    
     try:
-        import time
-        start_time = time.time()
-        
         data = json.loads(request.body)
         text_input = data.get('text', '').strip()
         
-        if not text_input:
+        # Validate and sanitize input
+        is_valid, sanitized_text, error_msg = InputValidator.validate_text_input(text_input)
+        if not is_valid:
+            logger.error_logger.warning(f"Invalid input on /api/predict/ | Error: {error_msg}")
             return JsonResponse({
                 'success': False,
-                'error': 'Text field is required and cannot be empty'
-            }, status=400)
-        
-        if len(text_input) > 3000:
-            return JsonResponse({
-                'success': False,
-                'error': 'Text exceeds maximum length of 3000 characters'
+                'error': error_msg
             }, status=400)
         
         try:
@@ -59,7 +60,6 @@ def predict_threat(request):
             if model is None or vectorizer is None:
                 # Fallback: train on-the-fly (slower but works without cached models)
                 from sklearn.feature_extraction.text import TfidfVectorizer
-                import pandas as pd
                 
                 df = TrainingService.load_default_dataset()
                 df = TrainingService.normalize_labels(df)
@@ -72,7 +72,7 @@ def predict_threat(request):
                 model.fit(X, y)
             
             # Predict
-            text_vec = vectorizer.transform([text_input])
+            text_vec = vectorizer.transform([sanitized_text])
             prediction = model.predict(text_vec)[0]
             confidence = float(model.predict_proba(text_vec)[0].max())
             
@@ -80,27 +80,47 @@ def predict_threat(request):
             
             inference_time = round((time.time() - start_time) * 1000, 2)
             
+            # Log successful prediction
+            logger.log_prediction(
+                endpoint='/api/predict/',
+                input_length=len(sanitized_text),
+                prediction=prediction_label,
+                confidence=confidence,
+                inference_time_ms=inference_time
+            )
+            
+            # Log API request
+            logger.log_api_request(
+                method='POST',
+                endpoint='/api/predict/',
+                status_code=200,
+                response_time_ms=inference_time
+            )
+            
             return JsonResponse({
                 'success': True,
                 'prediction': prediction_label,
                 'confidence': round(confidence, 3),
                 'model_used': 'Logistic Regression',
-                'input_length': len(text_input),
+                'input_length': len(sanitized_text),
                 'inference_time_ms': inference_time
             })
         
         except Exception as e:
+            logger.error_logger.error(f"Model prediction error on /api/predict/ | {str(e)}")
             return JsonResponse({
                 'success': False,
                 'error': f'Model prediction failed: {str(e)}'
             }, status=500)
     
     except json.JSONDecodeError:
+        logger.error_logger.warning("Invalid JSON on /api/predict/")
         return JsonResponse({
             'success': False,
             'error': 'Invalid JSON format'
         }, status=400)
     except Exception as e:
+        logger.error_logger.error(f"Unexpected error on /api/predict/ | {str(e)}")
         return JsonResponse({
             'success': False,
             'error': str(e)
@@ -124,29 +144,20 @@ def batch_predict(request):
         ]
     }
     """
+    start_time = time.time()
+    logger = get_logger()
+    
     try:
-        import time
-        start_time = time.time()
-        
         data = json.loads(request.body)
         texts = data.get('texts', [])
         
-        if not isinstance(texts, list):
+        # Validate batch input
+        is_valid, validated_texts, error_msg = InputValidator.validate_batch_texts(texts)
+        if not is_valid:
+            logger.error_logger.warning(f"Invalid batch input on /api/batch_predict/ | Error: {error_msg}")
             return JsonResponse({
                 'success': False,
-                'error': 'texts field must be a list'
-            }, status=400)
-        
-        if len(texts) == 0:
-            return JsonResponse({
-                'success': False,
-                'error': 'texts list cannot be empty'
-            }, status=400)
-        
-        if len(texts) > 100:
-            return JsonResponse({
-                'success': False,
-                'error': 'Maximum 100 texts per batch. Got: ' + str(len(texts))
+                'error': error_msg
             }, status=400)
         
         try:
@@ -170,12 +181,12 @@ def batch_predict(request):
                 model.fit(X, y)
             
             # Batch predict
-            texts_vec = vectorizer.transform(texts)
+            texts_vec = vectorizer.transform(validated_texts)
             predictions = model.predict(texts_vec)
             confidences = model.predict_proba(texts_vec).max(axis=1)
             
             results = []
-            for text, pred, conf in zip(texts, predictions, confidences):
+            for text, pred, conf in zip(validated_texts, predictions, confidences):
                 pred_label = "Cyber Threat Found" if pred == 1 else "No Cyber Threat Found"
                 results.append({
                     'text': text[:100] + '...' if len(text) > 100 else text,
@@ -185,25 +196,40 @@ def batch_predict(request):
             
             inference_time = round((time.time() - start_time) * 1000, 2)
             
+            # Log successful batch prediction
+            logger.log_api_request(
+                method='POST',
+                endpoint='/api/batch_predict/',
+                status_code=200,
+                response_time_ms=inference_time
+            )
+            
+            logger.performance_logger.info(
+                f"Batch prediction | Size: {len(validated_texts)} | Time: {inference_time}ms"
+            )
+            
             return JsonResponse({
                 'success': True,
-                'batch_size': len(texts),
+                'batch_size': len(validated_texts),
                 'results': results,
                 'inference_time_ms': inference_time
             })
         
         except Exception as e:
+            logger.error_logger.error(f"Batch prediction error on /api/batch_predict/ | {str(e)}")
             return JsonResponse({
                 'success': False,
                 'error': f'Batch prediction failed: {str(e)}'
             }, status=500)
     
     except json.JSONDecodeError:
+        logger.error_logger.warning("Invalid JSON on /api/batch_predict/")
         return JsonResponse({
             'success': False,
             'error': 'Invalid JSON format'
         }, status=400)
     except Exception as e:
+        logger.error_logger.error(f"Unexpected error on /api/batch_predict/ | {str(e)}")
         return JsonResponse({
             'success': False,
             'error': str(e)
@@ -235,6 +261,8 @@ def model_metrics(request):
         }
     }
     """
+    logger = get_logger()
+    
     try:
         # Get model accuracies
         accuracies = list(detection_accuracy.objects.all().values('names', 'ratio'))
@@ -272,6 +300,14 @@ def model_metrics(request):
         no_threat_preds = total_preds - threat_preds
         threat_ratio = round((threat_preds / total_preds * 100), 2) if total_preds > 0 else 0
         
+        # Log metrics request
+        logger.log_api_request(
+            method='GET',
+            endpoint='/api/metrics/',
+            status_code=200,
+            response_time_ms=0
+        )
+        
         return JsonResponse({
             'success': True,
             'models': models_data,
@@ -286,6 +322,7 @@ def model_metrics(request):
         })
     
     except Exception as e:
+        logger.error_logger.error(f"Metrics endpoint error | {str(e)}")
         return JsonResponse({
             'success': False,
             'error': str(e)
@@ -301,10 +338,20 @@ def health_check(request):
     
     Returns: {"status": "healthy", "service": "Threat Detection API"}
     """
+    logger = get_logger()
+    
     try:
         # Verify database connectivity
         total_models = detection_accuracy.objects.count()
         total_predictions = prediction_audit.objects.count()
+        
+        # Log health check
+        logger.log_api_request(
+            method='GET',
+            endpoint='/api/health/',
+            status_code=200,
+            response_time_ms=0
+        )
         
         return JsonResponse({
             'status': 'healthy',
@@ -313,6 +360,7 @@ def health_check(request):
             'predictions_recorded': total_predictions
         })
     except Exception as e:
+        logger.error_logger.error(f"Health check failed | {str(e)}")
         return JsonResponse({
             'status': 'unhealthy',
             'error': str(e)
