@@ -1,5 +1,7 @@
 # Automated Emerging Cyber Threat Identification
 
+live link: https://threat-identification-using-nlp.onrender.com/
+
 ## Overview
 This is a Django-based NLP project that detects whether a social media or news-like text input indicates a cyber threat. It includes a remote user portal for prediction and a service provider dashboard for model training, analytics, and audit review.
 
